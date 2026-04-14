@@ -39,7 +39,7 @@ pipeline{
             }
         }
 
-        stage('Build My Image'){
+        stage('Build My Docker Image'){
             agent{
                 docker{
                     image 'amazon/aws-cli'

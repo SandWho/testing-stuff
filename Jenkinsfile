@@ -11,13 +11,13 @@ pipeline {
                  }
             }
             steps {
-                dir('react-cicd'){ // Change to the react-cicd directory
+                // Change to the react-cicd directory
                   sh '''
                   npm install
                   npm test
                  '''
                 }
-            }
+            
         }
 
         stage('Build') {
@@ -28,25 +28,25 @@ pipeline {
                  }
             }
             steps {
-                dir('react-cicd') {
+                
                   sh '''
                     npm install
                     npm run build
                   '''
-               }
+               
             }
         }
 
         stage('Build My Docker Image') {
             steps {
-                dir('react-cicd') {
+                
                     script {
                         sh '''
                             docker build -t react-cicd:${BUILD_NUMBER} .
                             docker tag react-cicd:${BUILD_NUMBER} react-cicd:latest
                         '''
                     }
-                }
+                
             }
         }
     }

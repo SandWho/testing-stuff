@@ -37,15 +37,26 @@ pipeline {
             }
         }
 
-        stage('Build My Docker Image') {
-            steps {
-                dir('react-cicd') {
-                    script {
-                        sh '''
-                            docker build -t react-cicd:${BUILD_NUMBER} .
-                            docker tag react-cicd:${BUILD_NUMBER} react-cicd:latest
-                        '''
-                    }
+        stage('Build My Docker Image'){
+            agent{
+                docker{
+                    image 'amazon/aws-cli'
+                    reuseNode true
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=""'
+                }
+            }
+            steps{
+                withCredentials([usernamePassword(credentialsId: 'my_cred1', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) 
+                {
+
+                    sh '''
+                        dnf install -y docker
+                        docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME .
+                        docker images
+
+                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:latest
+                    '''
                 }
             }
         }
